@@ -1,0 +1,126 @@
+{% extends 'base.html' %} 
+{% block title %}Order History - E-Commerce Store{% endblock %} 
+{% block content %}
+<style>
+   .orders-container {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+   }
+   .orders-header {
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+   }
+   .order-card {
+      border: 1px solid #ecf0f1;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: box-shadow 0.3s;
+   }
+   .order-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+   }
+   .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+   }
+   .order-id {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2c3e50;
+   }
+   .order-status {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+   }
+   .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+   }
+   .status-shipped {
+      background-color: #d1ecf1;
+      color: #0c5460;
+   }
+   .status-delivered {
+      background-color: #d4edda;
+      color: #155724;
+   }
+   .order-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+   }
+   .info-item {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+   }
+   .info-item strong {
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 0.3rem;
+   }
+   .order-total {
+      font-size: 1.3rem;
+      color: #27ae60;
+      font-weight: bold;
+   }
+   .no-orders {
+      text-align: center;
+      padding: 3rem;
+      color: #7f8c8d;
+   }
+</style>
+
+<div class="orders-container">
+   <div class="orders-header">
+      <h1>📦 Order History</h1>
+   </div>
+
+   {% if orders %} {% for order in orders %}
+   <div class="order-card">
+      <div class="order-header">
+         <div class="order-id">Order #{{ order.id }}</div>
+         <span class="order-status status-{{ order.status|lower }}">
+            {{ order.status }}
+         </span>
+      </div>
+      <div class="order-info">
+         <div class="info-item">
+            <strong>Date</strong>
+            {{ order.created_at|date:"M d, Y - H:i" }}
+         </div>
+         <div class="info-item">
+            <strong>Items</strong>
+            {{ order.items.count }} item{{ order.items.count|pluralize }}
+         </div>
+         <div class="info-item">
+            <strong>Total</strong>
+            <span class="order-total">${{ order.total_price }}</span>
+         </div>
+      </div>
+      <a href="{% url 'order_detail' order.id %}" class="btn btn-primary"
+         >View Details</a
+      >
+   </div>
+   {% endfor %} {% else %}
+   <div class="no-orders">
+      <h2>No orders yet</h2>
+      <p>Start shopping to see your order history!</p>
+      <a
+         href="{% url 'product_list' %}"
+         class="btn btn-primary"
+         style="margin-top: 1rem"
+         >Browse Products</a
+      >
+   </div>
+   {% endif %}
+</div>
+{% endblock %}

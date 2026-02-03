@@ -1,0 +1,159 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>{% block title %}E-Commerce Store{% endblock %}</title>
+      <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+      <style>
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+         }
+         body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+         }
+         .navbar {
+            background-color: #3dc6ab;
+            padding: 1rem 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            flex-shrink: 0;
+         }
+         .navbar h1 {
+            font-size: 1.5rem;
+         }
+         .navbar nav a {
+            
+            color: white;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+         }
+         .navbar nav a:hover {
+            background-color: #34495e;
+         }
+         .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            flex: 1;
+         }
+         .messages {
+            margin: 1rem 0;
+         }
+         .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+         }
+         .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+         }
+         .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+         }
+         .alert-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+         }
+         .btn {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+         }
+         .btn-primary {
+            background-color: #3498db;
+            color: white;
+         }
+         .btn-primary:hover {
+            background-color: #2980b9;
+         }
+         .btn-success {
+            background-color: #27ae60;
+            color: white;
+         }
+         .btn-success:hover {
+            background-color: #229954;
+         }
+         .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+         }
+         .btn-danger:hover {
+            background-color: #c0392b;
+         }
+         .btn-warning {
+            background-color: #f39c12;
+            color: white;
+         }
+         .btn-warning:hover {
+            background-color: #d68910;
+         }
+         footer {
+            background-color: #24a197;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            flex-shrink: 0;
+         }
+      </style>
+   </head>
+   <body>
+      <nav class="navbar">
+         <h1>🛒 E-Commerce Store</h1>
+         <div>
+            {% if user.is_authenticated %}
+            <a href="{% url 'product_list' %}">Products</a>
+            <a href="{% url 'cart_view' %}">Cart</a>
+            <a href="{% url 'order_history' %}">Orders</a>
+            <a href="{% url 'transaction_list' %}">Transactions</a>
+            <a href="{% url 'logout' %}">Logout ({{ user.username }})</a>
+            {% else %}
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'signup' %}">Sign Up</a>
+            {% endif %}
+         </div>
+      </nav>
+
+      <div class="container">
+         {% if messages %}
+         <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+         </div>
+         {% endif %} {% block content %} {% endblock %}
+      </div>
+
+      <footer>
+         <p>&copy; 2026 E-Commerce Store. All rights reserved.</p>
+      </footer>
+   </body>
+</html>

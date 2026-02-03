@@ -1,0 +1,235 @@
+{% extends 'base.html' %} {% block title %}Transaction {{
+transaction.transaction_id }} - E-Commerce Store{% endblock %} {% block content
+%}
+<style>
+   .transaction-detail-container {
+      max-width: 900px;
+      margin: 0 auto;
+   }
+   .transaction-card {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+   }
+   .transaction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+   }
+   .transaction-title {
+      font-size: 1.8rem;
+      color: #2c3e50;
+   }
+   .transaction-status {
+      padding: 0.7rem 1.5rem;
+      border-radius: 20px;
+      font-size: 1rem;
+      font-weight: 500;
+   }
+   .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+   }
+   .status-confirmed {
+      background-color: #d4edda;
+      color: #155724;
+   }
+   .status-cancelled {
+      background-color: #f8d7da;
+      color: #721c24;
+   }
+   .transaction-id-display {
+      font-family: monospace;
+      font-size: 1.1rem;
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 2rem;
+      word-break: break-all;
+   }
+   .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+   }
+   .info-item strong {
+      display: block;
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+   }
+   .info-item span {
+      color: #2c3e50;
+      font-size: 1.1rem;
+   }
+   .order-summary {
+      border: 1px solid #ecf0f1;
+      border-radius: 8px;
+      padding: 1.5rem;
+      background-color: #f8f9fa;
+   }
+   .order-summary h3 {
+      margin-bottom: 1rem;
+      color: #2c3e50;
+   }
+   .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #dee2e6;
+   }
+   .summary-row:last-child {
+      border-bottom: none;
+   }
+   .amount-display {
+      font-size: 2rem;
+      color: #27ae60;
+      font-weight: bold;
+      text-align: center;
+      padding: 1.5rem;
+      background-color: #d4edda;
+      border-radius: 8px;
+      margin: 2rem 0;
+   }
+</style>
+
+<a
+   href="{% url 'transaction_list' %}"
+   class="btn btn-primary"
+   style="margin-bottom: 1rem"
+   >← Back to Transactions</a
+>
+
+<div class="transaction-detail-container">
+   <div class="transaction-card">
+      <div class="transaction-header">
+         <h1 class="transaction-title">Transaction Details</h1>
+         <span class="transaction-status status-{{ transaction.status|lower }}">
+            {{ transaction.status }}
+         </span>
+      </div>
+
+      <div style="margin-bottom: 1rem; color: #7f8c8d; font-size: 0.9rem">
+         Transaction ID
+      </div>
+      <div class="transaction-id-display">{{ transaction.transaction_id }}</div>
+
+      <div class="info-grid">
+         <div class="info-item">
+            <strong>Transaction Date</strong>
+            <span>{{ transaction.created_at|date:"M d, Y - H:i:s" }}</span>
+         </div>
+         <div class="info-item">
+            <strong>Status</strong>
+            <span>{{ transaction.status }}</span>
+         </div>
+         <div class="info-item">
+            <strong>Customer</strong>
+            <span>{{ transaction.user.username }}</span>
+         </div>
+         <div class="info-item">
+            <strong>Related Order</strong>
+            <span
+               ><a
+                  href="{% url 'order_detail' transaction.order.id %}"
+                  style="color: #3498db"
+                  >Order #{{ transaction.order.id }}</a
+               ></span
+            >
+         </div>
+      </div>
+
+      <div class="amount-display">
+         Total Amount: ${{ transaction.order.total_price }}
+      </div>
+
+      <div class="order-summary">
+         <h3>Order Summary</h3>
+         <div class="summary-row">
+            <span>Order ID:</span>
+            <span>#{{ transaction.order.id }}</span>
+         </div>
+         <div class="summary-row">
+            <span>Order Status:</span>
+            <span>{{ transaction.order.status }}</span>
+         </div>
+         <div class="summary-row">
+            <span>Number of Items:</span>
+            <span>{{ transaction.order.items.count }}</span>
+         </div>
+         <div class="summary-row">
+            <span>Order Date:</span>
+            <span>{{ transaction.order.created_at|date:"M d, Y - H:i" }}</span>
+         </div>
+      </div>
+
+      <div style="margin-top: 2rem; display: flex; gap: 1rem">
+         <a
+            href="{% url 'order_detail' transaction.order.id %}"
+            class="btn btn-primary"
+            >View Full Order Details</a
+         >
+         {% if transaction.status == 'Pending' %}
+         <a
+            href="{% url 'cancel_transaction' transaction.transaction_id %}"
+            class="btn btn-danger"
+            onclick="
+               return confirm(
+                  'Are you sure you want to cancel this transaction?',
+               );
+            "
+            >Cancel Transaction</a
+         >
+         {% endif %}
+      </div>
+   </div>
+
+   {% if transaction.status == 'Pending' %}
+   <div
+      class="transaction-card"
+      style="background-color: #fff3cd; border: 1px solid #ffc107"
+   >
+      <h4 style="color: #856404; margin-bottom: 0.5rem">
+         ⚠️ Pending Transaction
+      </h4>
+      <p style="color: #856404; margin: 0">
+         This transaction is currently pending. It will be automatically
+         confirmed once processed.
+      </p>
+   </div>
+   {% elif transaction.status == 'Confirmed' %}
+   <div
+      class="transaction-card"
+      style="background-color: #d4edda; border: 1px solid #28a745"
+   >
+      <h4 style="color: #155724; margin-bottom: 0.5rem">
+         ✓ Transaction Confirmed
+      </h4>
+      <p style="color: #155724; margin: 0">
+         This transaction has been successfully confirmed and processed.
+      </p>
+   </div>
+   {% elif transaction.status == 'Cancelled' %}
+   <div
+      class="transaction-card"
+      style="background-color: #f8d7da; border: 1px solid #dc3545"
+   >
+      <h4 style="color: #721c24; margin-bottom: 0.5rem">
+         ✗ Transaction Cancelled
+      </h4>
+      <p style="color: #721c24; margin: 0">
+         This transaction has been cancelled and will not be processed.
+      </p>
+   </div>
+   {% endif %}
+</div>
+{% endblock %}

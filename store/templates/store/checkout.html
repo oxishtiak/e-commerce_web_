@@ -1,0 +1,130 @@
+{% extends 'base.html' %} 
+{% block title %}Checkout - E-Commerce Store{% endblock %} {% block content %}
+<style>
+   .checkout-container {
+      max-width: 800px;
+      margin: 0 auto;
+   }
+   .checkout-card {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+   }
+   .checkout-header {
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+   }
+   .order-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid #ecf0f1;
+   }
+   .order-item:last-child {
+      border-bottom: none;
+   }
+   .item-details {
+      flex: 1;
+   }
+   .item-name {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 0.3rem;
+   }
+   .item-quantity {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+   }
+   .item-price {
+      font-size: 1.2rem;
+      color: #27ae60;
+      font-weight: bold;
+   }
+   .order-summary {
+      background-color: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 4px;
+      margin-top: 2rem;
+   }
+   .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+   }
+   .summary-total {
+      border-top: 2px solid #dee2e6;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2c3e50;
+   }
+   .summary-total span {
+      color: #27ae60;
+   }
+</style>
+
+<div class="checkout-container">
+   <div class="checkout-card">
+      <div class="checkout-header">
+         <h1>📋 Checkout</h1>
+      </div>
+
+      <h3 style="margin-bottom: 1rem">Order Summary</h3>
+
+      {% for item in cart_items %}
+      <div class="order-item">
+         <div class="item-details">
+            <div class="item-name">{{ item.product.name }}</div>
+            <div class="item-quantity">Quantity: {{ item.quantity }}</div>
+         </div>
+         <div class="item-price">
+            ${% widthratio item.product.price 1 item.quantity %}
+         </div>
+      </div>
+      {% endfor %}
+
+      <div class="order-summary">
+         <div class="summary-row">
+            <span>Subtotal:</span>
+            <span>${{ total_price }}</span>
+         </div>
+         <div class="summary-row">
+            <span>Shipping:</span>
+            <span>Free</span>
+         </div>
+         <div class="summary-row summary-total">
+            <span>Total:</span>
+            <span>${{ total_price }}</span>
+         </div>
+      </div>
+
+      <form method="post" style="margin-top: 2rem">
+         {% csrf_token %}
+         <div style="display: flex; gap: 1rem; justify-content: space-between">
+            <a href="{% url 'cart_view' %}" class="btn btn-primary"
+               >← Back to Cart</a
+            >
+            <button
+               type="submit"
+               class="btn btn-success"
+               style="font-size: 1.1rem; padding: 0.8rem 2rem"
+            >
+               Place Order
+            </button>
+         </div>
+      </form>
+   </div>
+
+   <div class="checkout-card" style="background-color: #e8f5e9">
+      <h4 style="color: #2e7d32; margin-bottom: 0.5rem">🔒 Secure Checkout</h4>
+      <p style="color: #558b2f; margin: 0">
+         Your transaction will be processed securely. You can track your order
+         status in the Transactions section.
+      </p>
+   </div>
+</div>
+{% endblock %}

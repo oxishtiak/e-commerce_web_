@@ -1,0 +1,162 @@
+{% extends 'base.html' %} 
+{% block title %}Transactions - E-Commerce Store{% endblock %} 
+{% block content %}
+<style>
+   .transactions-container {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+   }
+   .transactions-header {
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+   }
+   .transaction-card {
+      border: 1px solid #ecf0f1;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: box-shadow 0.3s;
+   }
+   .transaction-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+   }
+   .transaction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+   }
+   .transaction-id {
+      font-family: monospace;
+      font-size: 1rem;
+      color: #2c3e50;
+      background-color: #ecf0f1;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+   }
+   .transaction-status {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+   }
+   .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+   }
+   .status-confirmed {
+      background-color: #d4edda;
+      color: #155724;
+   }
+   .status-cancelled {
+      background-color: #f8d7da;
+      color: #721c24;
+   }
+   .transaction-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+   }
+   .info-item {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+   }
+   .info-item strong {
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 0.3rem;
+   }
+   .transaction-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+   }
+   .no-transactions {
+      text-align: center;
+      padding: 3rem;
+      color: #7f8c8d;
+   }
+</style>
+
+<div class="transactions-container">
+   <div class="transactions-header">
+      <h1>💳 Transaction History</h1>
+      <p style="color: #7f8c8d">Track your payment and order transactions</p>
+   </div>
+
+   {% if transactions %} {% for transaction in transactions %}
+   <div class="transaction-card">
+      <div class="transaction-header">
+         <div>
+            <div
+               style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.5rem"
+            >
+               Transaction ID
+            </div>
+            <div class="transaction-id">{{ transaction.transaction_id }}</div>
+         </div>
+         <span class="transaction-status status-{{ transaction.status|lower }}">
+            {{ transaction.status }}
+         </span>
+      </div>
+      <div class="transaction-info">
+         <div class="info-item">
+            <strong>Date</strong>
+            {{ transaction.created_at|date:"M d, Y - H:i" }}
+         </div>
+         <div class="info-item">
+            <strong>Order ID</strong>
+            #{{ transaction.order.id }}
+         </div>
+         <div class="info-item">
+            <strong>Amount</strong>
+            <span style="color: #27ae60; font-size: 1.2rem; font-weight: bold"
+               >${{ transaction.order.total_price }}</span
+            >
+         </div>
+      </div>
+      <div class="transaction-actions">
+         <a
+            href="{% url 'transaction_detail' transaction.transaction_id %}"
+            class="btn btn-primary"
+            >View Details</a
+         >
+         <a
+            href="{% url 'order_detail' transaction.order.id %}"
+            class="btn btn-primary"
+            >View Order</a
+         >
+         {% if transaction.status == 'Pending' %}
+         <a
+            href="{% url 'cancel_transaction' transaction.transaction_id %}"
+            class="btn btn-danger"
+            onclick="
+               return confirm(
+                  'Are you sure you want to cancel this transaction?',
+               );
+            "
+            >Cancel Transaction</a
+         >
+         {% endif %}
+      </div>
+   </div>
+   {% endfor %} {% else %}
+   <div class="no-transactions">
+      <h2>No transactions yet</h2>
+      <p>
+         Your transaction history will appear here after you make a purchase.
+      </p>
+      <a
+         href="{% url 'product_list' %}"
+         class="btn btn-primary"
+         style="margin-top: 1rem"
+         >Start Shopping</a
+      >
+   </div>
+   {% endif %}
+</div>
+{% endblock %}

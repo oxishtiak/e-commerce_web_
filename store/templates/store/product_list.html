@@ -1,0 +1,267 @@
+{% extends 'base.html' %} 
+{% block title %}Products - E-Commerce Store{% endblock %} 
+{% block content %}
+<style>
+   .page-header {
+      margin-bottom: 2rem;
+   }
+   .page-header h2 {
+      color: #2c3e50;
+      margin-bottom: 1rem;
+   }
+   .filter-section {
+      margin-bottom: 2rem;
+   }
+   .filter-label {
+      color: #2c3e50;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: block;
+   }
+   .categories {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+   }
+   .category-badge {
+      padding: 0.5rem 1rem;
+      background-color: #ecf0f1;
+      border-radius: 20px;
+      color: #2c3e50;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+      border: 2px solid transparent;
+   }
+   .category-badge:hover {
+      background-color: #bdc3c7;
+      transform: translateY(-2px);
+   }
+   .category-badge.active {
+      background-color: #3498db;
+      color: white;
+      border-color: #2980b9;
+   }
+   .category-all {
+      padding: 0.5rem 1rem;
+      background-color: #27ae60;
+      color: white;
+      border-radius: 20px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+      border: 2px solid #27ae60;
+   }
+   .category-all:hover {
+      background-color: #229954;
+   }
+   .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+   }
+   .product-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition:
+         transform 0.3s,
+         box-shadow 0.3s;
+   }
+   .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+   }
+   .product-image {
+      width: 100%;
+      height: 200px;
+      background-color: #ecf0f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #95a5a6;
+   }
+   .product-info {
+      padding: 1.5rem;
+   }
+   .product-category {
+      font-size: 0.8rem;
+      color: #3498db;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+   }
+   .product-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+   }
+   .product-price {
+      font-size: 1.5rem;
+      color: #27ae60;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+   }
+   .product-stock {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+   }
+   .product-rating {
+      font-size: 0.9rem;
+      color: #f39c12;
+      margin-bottom: 1rem;
+   }
+   .product-actions {
+      display: flex;
+      gap: 0.5rem;
+   }
+   .btn-details {
+      flex: 1;
+      padding: 0.5rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: background-color 0.3s;
+   }
+   .btn-details:hover {
+      background-color: #2980b9;
+   }
+   .btn-cart {
+      flex: 1;
+      padding: 0.5rem;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: background-color 0.3s;
+   }
+   .btn-cart:hover {
+      background-color: #229954;
+   }
+   .no-products {
+      text-align: center;
+      padding: 3rem;
+      color: #7f8c8d;
+      background: #f8f9fa;
+      border-radius: 8px;
+   }
+   .no-products h3 {
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+   }
+</style>
+
+<div class="page-header">
+   <h2>Our Products</h2>
+</div>
+
+<div class="filter-section">
+   <span class="filter-label">Filter by Category:</span>
+   <div class="categories">
+      <a
+         href="{% url 'product_list' %}"
+         class="category-all {% if not selected_category %}active{% endif %}"
+      >
+         ✓ All Products
+      </a>
+      {% for category in categories %}
+      <a
+         href="{% url 'product_list' %}?category={{ category.id }}"
+         class="category-badge {% if selected_category and selected_category.id == category.id %}active{% endif %}"
+      >
+         {{ category.name }}
+      </a>
+      {% endfor %}
+   </div>
+</div>
+
+{% if products %}
+<div style="margin-bottom: 1rem; color: #7f8c8d">
+   Showing {{ products.count }} product{{ products.count|pluralize }}
+   {% if selected_category %}
+      in <strong>{{ selected_category.name }}</strong>
+   {% endif %}
+</div>
+
+<div class="products-grid">
+   {% for product in products %}
+   <div class="product-card">
+      <div class="product-image">
+         {% if product.image %}
+         <img
+            src="{{ product.image.url }}"
+            alt="{{ product.name }}"
+            style="width: 100%; height: 100%; object-fit: cover"
+         />
+         {% else %}
+            📦
+         {% endif %}
+      </div>
+
+      <div class="product-info">
+         <div class="product-category">{{ product.category.name }}</div>
+         <div class="product-name">{{ product.name }}</div>
+         <div class="product-price">${{ product.price }}</div>
+
+         <div class="product-rating">
+            ★ {{ product.average_rating|floatformat:1 }}
+            ({{ product.reviews.count }} reviews)
+         </div>
+
+         <div class="product-stock">
+            {% if product.stock > 0 %}
+               ✓ In Stock ({{ product.stock }})
+            {% else %}
+               <span style="color: #e74c3c">✗ Out of Stock</span>
+            {% endif %}
+         </div>
+
+         <div class="product-actions">
+            <a href="{% url 'product_detail' product.pk %}" class="btn-details">
+               View Details
+            </a>
+
+            {% if product.stock > 0 and user.is_authenticated %}
+            <a href="{% url 'add_to_cart' product.id %}" class="btn-cart">
+               Add to Cart
+            </a>
+            {% endif %}
+         </div>
+      </div>
+   </div>
+   {% endfor %}
+</div>
+
+{% else %}
+<div class="no-products">
+   <h3>No products found</h3>
+
+   {% if selected_category %}
+   <p>No products in <strong>{{ selected_category.name }}</strong> category.</p>
+   <a
+      href="{% url 'product_list' %}"
+      style="color: #3498db; text-decoration: none; font-weight: 600"
+   >
+      ← View all products
+   </a>
+   {% else %}
+   <p>Please check back later!</p>
+   {% endif %}
+</div>
+{% endif %}
+{% endblock %}

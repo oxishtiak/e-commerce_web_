@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} - E-Commerce Store{% endblock %}
+{% block content %}
+<style>
+    .product-detail {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    .product-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    .product-image {
+        width: 100%;
+        max-width: 400px;
+        height: 400px;
+        background: #ecf0f1;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #95a5a6;
+    }
+    .product-info h1 {
+        font-size: 2rem;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    .product-price {
+        font-size: 1.75rem;
+        color: #e74c3c;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    .product-category {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    .product-rating {
+        margin-bottom: 1.5rem;
+    }
+    .stars {
+        color: #f39c12;
+        font-size: 1.2rem;
+    }
+    .rating-count {
+        color: #95a5a6;
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+    }
+    .product-description {
+        color: #34495e;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .btn-primary {
+        flex: 1;
+        padding: 0.75rem;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.3s;
+    }
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+    .btn-secondary {
+        flex: 1;
+        padding: 0.75rem;
+        background: #95a5a6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.3s;
+    }
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+    .reviews-section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #ecf0f1;
+    }
+    .reviews-section h2 {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+    }
+    .review-item {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    .review-author {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    .review-rating {
+        color: #f39c12;
+    }
+    .review-date {
+        color: #95a5a6;
+        font-size: 0.9rem;
+    }
+    .review-text {
+        color: #34495e;
+        line-height: 1.6;
+    }
+    .review-form {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 4px;
+        margin-top: 1.5rem;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #34495e;
+        font-weight: 500;
+    }
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-family: inherit;
+    }
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    .btn-submit {
+        padding: 0.75rem 1.5rem;
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.3s;
+    }
+    .btn-submit:hover {
+        background: #229954;
+    }
+    @media (max-width: 768px) {
+        .product-header {
+            grid-template-columns: 1fr;
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="product-detail">
+        <div class="product-header">
+            <div class="product-image">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                {% else %}
+                    No Image
+                {% endif %}
+            </div>
+            <div class="product-info">
+                <h1>{{ product.name }}</h1>
+                <div class="product-category">
+                    Category: <a href="{% url 'product_list' %}?category={{ product.category.id }}">{{ product.category.name }}</a>
+                </div>
+                <div class="product-price">${{ product.price }}</div>
+                <div class="product-rating">
+                    <span class="stars">★ {{ product.average_rating|floatformat:1 }}</span>
+                    <span class="rating-count">({{ product.reviews.count }} reviews)</span>
+                </div>
+                <div class="product-description">
+                    {{ product.description }}
+                </div>
+                <div class="action-buttons">
+                    <form method="POST" action="{% url 'add_to_cart' product.id %}" style="flex: 1;">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="1" min="1" max="100" style="width: 80px; padding: 0.5rem; margin-right: 0.5rem;">
+                        <button type="submit" class="btn-primary" style="width: 100%;">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="reviews-section">
+            <h2>Customer Reviews</h2>
+            {% if product.reviews.all %}
+                {% for review in product.reviews.all %}
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div>
+                                <div class="review-author">{{ review.user.username }}</div>
+                                <div class="review-rating">★ {{ review.rating }}/5</div>
+                            </div>
+                            <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                        </div>
+                        <div class="review-text">{{ review.comment }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #95a5a6;">No reviews yet. Be the first to review this product!</p>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                <div class="review-form">
+                    <h3 style="color: #2c3e50; margin-bottom: 1rem;">Write a Review</h3>
+                    <form method="POST" action="{% url 'add_review' product.id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="rating">Rating (1-5):</label>
+                            <input type="number" id="rating" name="rating" min="1" max="5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="comment">Comment:</label>
+                            <textarea id="comment" name="comment" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Submit Review</button>
+                    </form>
+                </div>
+            {% else %}
+                <p style="color: #95a5a6; margin-top: 1.5rem;"><a href="{% url 'login' %}">Login</a> to write a review.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'product_list' %}" style="color: #3498db; text-decoration: none;">← Back to Products</a>
+    </div>
+</div>
+{% endblock %}
